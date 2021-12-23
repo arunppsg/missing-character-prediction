@@ -2,8 +2,6 @@
 
 """
 Objective: Predict missing characters in a word
-
-Based on http://norvig.com/spell-correct.html
 """
 
 import pandas as pd
@@ -53,13 +51,23 @@ def remove_random_character(word):
     incorrect_word = word[:pos] + incorrect_token + word[pos+1:]
     return incorrect_word
 
-def evaluate(words):
+def log_incorrect_pairs(incorrect_pairs):
+    with open('incorrect_pairs.txt', 'a') as f:
+        for word, incorrect_word in incorrect_pairs:
+            f.write("{} - {}\n".format(word, incorrect_word))
+
+def evaluate(words, log=0):
     score = 0
+    incorrect_pairs = []
     for word in words:
         incorrect_word = remove_random_character(word)
         possible_word = find_missing_character(incorrect_word)
         if word == possible_word:
             score += 1
+        else:
+            incorrect_pairs.append((word, possible_word))
+    if log == 1:
+        log_incorrect_pairs(incorrect_pairs)
     total_score = score / len(words)
     return total_score 
 
@@ -67,11 +75,11 @@ if __name__ == "__main__":
     df = load_words()
     kf = KFold(n_splits=10, random_state=200, shuffle=True)
     scores = []
-    for train_idx, test_idx in kf.split(df):
+    for i, (train_idx, test_idx) in enumerate(kf.split(df)):
         train_words = df.loc[train_idx]['words']
         test_words = df.loc[test_idx]['words']
         WORDS = Counter(train_words)
         N = sum(WORDS.values())
-        score = evaluate(test_words)
+        score = evaluate(test_words, 1)
         scores.append(score)
     print ("Average score is %f " % np.mean(scores)) 
