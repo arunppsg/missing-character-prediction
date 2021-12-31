@@ -13,4 +13,5 @@ All algorithms have been evaluated using 10-fold cross validation.
 | Algorithm      | Score |
 | -------------- | ----- |
 | Brute Force    | 0.704 |
-| Naive Bayes + N-grams|  TODO   |
+| N-grams |  0.55  |
+| Regex   |  0.69  |
